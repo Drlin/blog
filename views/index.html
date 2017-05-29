@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block head %}
+{% parent %}
+{% endblock %}
+{% block content %}
+	<div>
+		<a id="ele" href="javascript: void(0)">点赞👍</a>
+		<span>+1</span>
+	</div>
+	<script>
+    	let thumb = new Thumb(1, ele)
+    	console.log(thumb.clickAction())
+    </script>
+{% endblock %}
