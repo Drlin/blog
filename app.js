@@ -1,30 +1,30 @@
 const Koa = require('koa');
 const Router = require('koa-router')
-const serve = require('koa-static')
 const path = require('path')
-const render = require('koa-swig')
+const serve = require('koa-static')
 const co = require('co');
-const init = require('./controller/init.js')
-
+const socketIo = require('socket.io');
+const bodyParser = require('koa-bodyparser')
 
 const app = new Koa();
 const router = new Router();
 
-init.init(router)
-
-app.context.render = co.wrap(render({
-	root: path.join(__dirname, './views'),
-  	autoescape: true,
-	cache: 'memory',
-	ext: 'html', 
-	varControls: ['[[', ']]'],
-	writeBody: false
-}));
+app.use(serve(path.resolve('html/dist')));
 
 app
   .use(router.routes())
   .use(router.allowedMethods());
 
-app.use(serve(path.resolve('./public')));
+const io = socketIo(app.listen(3000));
+const messages = [];
 
-app.listen(3000);
+io.on('connection', socket => {
+  socket.on('login', data => {
+    io.emit('someoneComing', data)
+  });
+  socket.on('talk', ({name, message}) => {
+    console.log({name, message})
+    io.emit('someoneTalking', {name, message})
+  })
+});
+
